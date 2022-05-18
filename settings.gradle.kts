@@ -16,6 +16,7 @@ include(":app")
 include(":library_one")
 include(":library_two")
 setup()
+rootProject.name = "Gradle Plugin"
 fun setup() {
     rootProject.name = "Gradle Plugin"
 

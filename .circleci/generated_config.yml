@@ -1,0 +1,54 @@
+# This is the template for the CircleCI configuration that the `generateModuleTestsConfig`
+# Gradle task will use to generate the build configuration for our modules.
+
+version: 2.1
+
+jobs:
+  # Job for building, testing and checking Gradle modules
+  build_test_check:
+    docker:
+      - image: cimg/android:2022.01
+    resource_class: << parameters.resourceClass >>
+    parameters:
+      moduleName:
+        type: string
+      gradleTasks:
+        type: string
+      resourceClass:
+        type: string
+        default: xlarge
+      dependencyCacheKey:
+        type: string
+    steps:
+      - checkout
+      - restore_cache:
+          key: << parameters.dependencyCacheKey >>
+      - run:
+          name: Build, test, check (<< parameters.moduleName >>)
+          command: |
+            ./gradlew << parameters.gradleTasks >>
+      - save_cache:
+          key: << parameters.dependencyCacheKey >>
+          paths:
+            - ~/.gradle/caches
+workflows:
+  build-test-check:
+    jobs:
+      - build_test_check:
+          name: library_one
+          moduleName: ":library_one"
+          dependencyCacheKey: deps-29417be20a0722b1cd9cb9302e86f2db96723928-41e5b327f1618592ca67a4b2b571e1225c76b54f
+          gradleTasks: ":library_one:assembleRelease :library_one:assembleAndroidTest :library_one:lintRelease :library_one:testRelease"
+    
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*(-.*)?$/
+      - build_test_check:
+          name: library_two
+          moduleName: ":library_two"
+          dependencyCacheKey: deps-29417be20a0722b1cd9cb9302e86f2db96723928-2f30bee59da0d1eb4a59ad04d11a1242962c5b92
+          gradleTasks: ":library_two:assembleRelease :library_two:assembleAndroidTest :library_two:lintRelease :library_two:testRelease"
+    
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*(-.*)?$/

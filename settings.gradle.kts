@@ -12,12 +12,13 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+include(":app")
+include(":library_one")
+include(":library_two")
 setup()
 fun setup() {
     rootProject.name = "Gradle Plugin"
-    include(":app")
-    include(":library_one")
-    include(":library_two")
+
 
     /** creates a list of all the modules present in the project */
     val libs = mutableListOf<Module>()

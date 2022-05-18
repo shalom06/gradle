@@ -1,0 +1,36 @@
+# This is the template for the CircleCI configuration that the `generateModuleTestsConfig`
+# Gradle task will use to generate the build configuration for our modules.
+
+version: 2.1
+
+jobs:
+  # Job for building, testing and checking Gradle modules
+  build_test_check:
+    docker:
+      - image: cimg/android:2022.01
+    resource_class: << parameters.resourceClass >>
+    parameters:
+      moduleName:
+        type: string
+      gradleTasks:
+        type: string
+      resourceClass:
+        type: string
+        default: xlarge
+      dependencyCacheKey:
+        type: string
+    steps:
+      - checkout
+      - restore_cache:
+          key: << parameters.dependencyCacheKey >>
+      - run:
+          name: Build, test, check (<< parameters.moduleName >>)
+          command: |
+            ./gradlew << parameters.gradleTasks >>
+      - save_cache:
+          key: << parameters.dependencyCacheKey >>
+          paths:
+            - ~/.gradle/caches
+workflows:
+  build-test-check:
+    jobs:

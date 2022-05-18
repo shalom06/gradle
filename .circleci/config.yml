@@ -1,0 +1,23 @@
+setup: true
+version: 2.1
+orbs:
+  continuation: circleci/continuation@0.2.0
+jobs:
+  generate_config:
+    docker:
+      - image: cimg/android:2022.01
+    steps:
+      - checkout
+      - run:
+          name: generate build config
+          command: |
+            ./gradlew generateModuleTestsConfig
+      - continuation/continue:
+          configuration_path: .circleci/generated_config.yml
+workflows:
+  generate_config:
+    jobs:
+      - generate_config:
+         filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*(-.*)?$/
